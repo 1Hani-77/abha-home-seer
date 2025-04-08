@@ -16,7 +16,7 @@ const Header = () => {
             <InfoIcon className="h-5 w-5 mr-2" />
             <span>About</span>
           </Button>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/your-username/abha-homeseer" target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-estate-primary">
               <GitHubIcon className="h-5 w-5 mr-2" />
               <span>View Python ML Model</span>
