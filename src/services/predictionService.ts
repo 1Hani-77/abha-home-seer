@@ -50,11 +50,10 @@ export const predictPropertyPrice = async (data: PropertyData): Promise<Predicti
 
 // Mock function as fallback if API is not available
 const mockPredictPropertyPrice = (data: PropertyData): PredictionResult => {
-  // Very simple price calculation logic for demonstration
-  // This matches the previous mock implementation
+  // Simple price calculation logic
   const basePrice = 800000; // Base price in SAR
   
-  // Location factors (simplified)
+  // Location factors
   const locationFactors: Record<string, number> = {
     "Abha City Center": 1.4,
     "Al Sad": 1.3,
@@ -75,42 +74,35 @@ const mockPredictPropertyPrice = (data: PropertyData): PredictionResult => {
     "Studio": 0.8
   };
   
-  // Calculate based on area, location, type, bedrooms, bathrooms and age
+  // Calculate price with factors
   const locationFactor = locationFactors[data.location] || 1;
   const typeFactor = propertyTypeFactors[data.propertyType] || 1;
   const areaPriceFactor = data.area * 3500;
   const bedroomFactor = data.bedrooms * 50000;
   const bathroomFactor = data.bathrooms * 30000;
   
-  // Age depreciation (newer is more valuable)
-  const currentYear = new Date().getFullYear();
-  const ageDepreciation = Math.max(0.7, 1 - ((currentYear - data.yearBuilt) * 0.01));
-  
-  // Calculate price with all factors
+  // Calculate predicted price
   const predictedPrice = Math.round(
     (basePrice + areaPriceFactor + bedroomFactor + bathroomFactor) * 
     locationFactor * 
-    typeFactor * 
-    ageDepreciation
+    typeFactor
   );
   
-  // Generate similar properties with slight variations
-  const similarProperties = Array.from({ length: 5 }, (_, i) => {
+  // Generate similar properties
+  const similarProperties = Array.from({ length: 3 }, (_, i) => {
     const variation = 0.9 + (Math.random() * 0.2); // 0.9 to 1.1
-    const areaVariation = Math.max(50, data.area + Math.floor(Math.random() * 50) - 25);
-    const bedroomVariation = Math.max(1, data.bedrooms + (Math.random() > 0.7 ? 1 : 0));
     
     return {
       price: Math.round(predictedPrice * variation),
-      area: areaVariation,
-      bedrooms: bedroomVariation,
+      area: data.area,
+      bedrooms: data.bedrooms,
       location: data.location,
     };
   });
   
   return {
     predictedPrice,
-    confidence: Math.round(85 + Math.random() * 10), // 85-95%
+    confidence: 90, // Fixed confidence
     similarProperties,
   };
 };

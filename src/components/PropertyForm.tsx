@@ -44,22 +44,12 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ onPredict }) => {
   };
 
   const abhaLocations = [
-    "Abha City Center",
-    "Al Sad",
-    "Al Numas",
-    "Al Aziziyah",
-    "Al Marooj",
-    "Al Mansak",
-    "Al Qabel",
-    "Al Warood"
+    "Abha City Center", "Al Sad", "Al Numas", "Al Aziziyah",
+    "Al Marooj", "Al Mansak", "Al Qabel", "Al Warood"
   ];
 
   const propertyTypes = [
-    "Apartment",
-    "Villa",
-    "Duplex",
-    "Townhouse",
-    "Studio"
+    "Apartment", "Villa", "Duplex", "Townhouse", "Studio"
   ];
 
   return (
@@ -70,31 +60,21 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ onPredict }) => {
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Area Input */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <AreaIcon className="h-5 w-5 mr-2 text-estate-secondary" />
                 <Label htmlFor="area">Area (sqm)</Label>
               </div>
-              <div className="flex space-x-4 items-center">
-                <Slider
-                  id="area-slider"
-                  min={50}
-                  max={800}
-                  step={10}
-                  value={[propertyData.area]}
-                  onValueChange={(value) => handleChange("area", value[0])}
-                  className="flex-grow"
-                />
-                <Input
-                  id="area"
-                  type="number"
-                  value={propertyData.area}
-                  onChange={(e) => handleChange("area", parseInt(e.target.value))}
-                  className="w-20"
-                />
-              </div>
+              <Input
+                id="area"
+                type="number"
+                value={propertyData.area}
+                onChange={(e) => handleChange("area", parseInt(e.target.value))}
+              />
             </div>
 
+            {/* Location Input */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <LocationIcon className="h-5 w-5 mr-2 text-estate-secondary" />
@@ -117,56 +97,35 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ onPredict }) => {
               </Select>
             </div>
 
+            {/* Bedrooms Input */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <BedIcon className="h-5 w-5 mr-2 text-estate-secondary" />
                 <Label htmlFor="bedrooms">Bedrooms</Label>
               </div>
-              <div className="flex space-x-4 items-center">
-                <Slider
-                  id="bedroom-slider"
-                  min={1}
-                  max={8}
-                  step={1}
-                  value={[propertyData.bedrooms]}
-                  onValueChange={(value) => handleChange("bedrooms", value[0])}
-                  className="flex-grow"
-                />
-                <Input
-                  id="bedrooms"
-                  type="number"
-                  value={propertyData.bedrooms}
-                  onChange={(e) => handleChange("bedrooms", parseInt(e.target.value))}
-                  className="w-20"
-                />
-              </div>
+              <Input
+                id="bedrooms"
+                type="number"
+                value={propertyData.bedrooms}
+                onChange={(e) => handleChange("bedrooms", parseInt(e.target.value))}
+              />
             </div>
 
+            {/* Bathrooms Input */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <BathIcon className="h-5 w-5 mr-2 text-estate-secondary" />
                 <Label htmlFor="bathrooms">Bathrooms</Label>
               </div>
-              <div className="flex space-x-4 items-center">
-                <Slider
-                  id="bathroom-slider"
-                  min={1}
-                  max={8}
-                  step={1}
-                  value={[propertyData.bathrooms]}
-                  onValueChange={(value) => handleChange("bathrooms", value[0])}
-                  className="flex-grow"
-                />
-                <Input
-                  id="bathrooms"
-                  type="number"
-                  value={propertyData.bathrooms}
-                  onChange={(e) => handleChange("bathrooms", parseInt(e.target.value))}
-                  className="w-20"
-                />
-              </div>
+              <Input
+                id="bathrooms"
+                type="number"
+                value={propertyData.bathrooms}
+                onChange={(e) => handleChange("bathrooms", parseInt(e.target.value))}
+              />
             </div>
 
+            {/* Property Type Input */}
             <div className="space-y-2">
               <Label htmlFor="propertyType">Property Type</Label>
               <Select
@@ -186,6 +145,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ onPredict }) => {
               </Select>
             </div>
 
+            {/* Year Built Input */}
             <div className="space-y-2">
               <Label htmlFor="yearBuilt">Year Built</Label>
               <Select

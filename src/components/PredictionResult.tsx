@@ -1,15 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
 
 interface PredictionResultProps {
   predictedPrice: number;
@@ -27,22 +18,6 @@ const PredictionResult: React.FC<PredictionResultProps> = ({
   confidence, 
   similarProperties 
 }) => {
-  const chartData = similarProperties.map((property, index) => ({
-    name: `Property ${index + 1}`,
-    price: property.price,
-    area: property.area,
-  }));
-
-  // Add the predicted price to the chart data
-  chartData.push({
-    name: 'Your Property',
-    price: predictedPrice,
-    area: similarProperties[0]?.area || 200,
-  });
-
-  // Custom styles for the chart
-  const yourPropertyIndex = chartData.length - 1;
-  
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString()} SAR`;
   };
@@ -61,32 +36,20 @@ const PredictionResult: React.FC<PredictionResultProps> = ({
           </p>
         </div>
 
-        <div className="w-full">
+        <div>
           <h3 className="text-lg font-medium text-estate-dark mb-4">Comparable Properties</h3>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={chartData}
-                margin={{
-                  top: 10,
-                  right: 30,
-                  left: 0,
-                  bottom: 0,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis tickFormatter={(value) => `${(value / 1000)}k`} />
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                <Area 
-                  type="monotone" 
-                  dataKey="price" 
-                  stroke="#1a365d" 
-                  fill="#63b3ed" 
-                  fillOpacity={0.8}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="space-y-4">
+            {similarProperties.map((property, index) => (
+              <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between">
+                  <span className="font-medium">Property {index + 1}</span>
+                  <span className="font-bold text-estate-primary">{formatCurrency(property.price)}</span>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  {property.area} sqm • {property.bedrooms} bedrooms • {property.location}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -103,11 +66,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({
             </li>
             <li className="flex items-start space-x-2">
               <span className="text-estate-secondary font-bold">•</span>
-              <span>Recent sales of similar properties in the neighborhood</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-estate-secondary font-bold">•</span>
-              <span>Property features (bedrooms, bathrooms, etc.) impact valuation</span>
+              <span>Property features (bedrooms, bathrooms) impact valuation</span>
             </li>
           </ul>
         </div>
