@@ -10,9 +10,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import threading
 
 # Set page configuration
 st.set_page_config(
@@ -83,7 +80,7 @@ def predict_price(model, features, input_data):
     
     # Generate similar properties (simplified)
     similar_properties = []
-    for _ in range(3):  # Reduced from 5 to 3
+    for _ in range(3):
         variation = 0.9 + (np.random.random() * 0.2)
         similar_prop = {
             'price': round(prediction * variation),
@@ -93,27 +90,11 @@ def predict_price(model, features, input_data):
         }
         similar_properties.append(similar_prop)
     
-    result = {
+    return {
         'predictedPrice': round(prediction),
         'confidence': round(90),  # Simplified confidence
         'similarProperties': similar_properties
     }
-    
-    return result
-
-# API with Flask
-api = Flask(__name__)
-CORS(api)
-
-@api.route('/predict', methods=['POST'])
-def api_predict():
-    data = request.json
-    result = predict_price(model, features, data)
-    return jsonify(result)
-
-# Function to run the Flask API
-def run_api():
-    api.run(host='0.0.0.0', port=5000)
 
 # Main Streamlit UI
 def main():
@@ -126,95 +107,81 @@ def main():
     with st.spinner('Loading data...'):
         df = load_data()
     
-    # Show data exploration tabs
-    tab1, tab2 = st.tabs(["Predict", "API Info"])
+    # Train model if not already trained
+    if model is None:
+        with st.spinner('Training model...'):
+            model, features, mae, r2, y_test, y_pred = train_model(df)
+            st.success('Model trained successfully!')
+            
+            # Display model metrics
+            st.subheader("Model Performance")
+            col1, col2 = st.columns(2)
+            col1.metric("Mean Absolute Error", f"{mae:.2f} SAR")
+            col2.metric("R² Score", f"{r2:.2f}")
+            
+            # Plot actual vs predicted values
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.scatterplot(x=y_test, y=y_pred, alpha=0.6)
+            plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+            plt.xlabel('Actual Price')
+            plt.ylabel('Predicted Price')
+            plt.title('Actual vs Predicted Property Prices')
+            st.pyplot(fig)
     
-    with tab1:
-        st.header("Predict Property Price")
-        
-        # Train model if not already trained
-        if model is None:
-            with st.spinner('Training model...'):
-                model, features, mae, r2, y_test, y_pred = train_model(df)
-                st.success('Model trained successfully!')
-                
-        # Input form for prediction
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Property Details")
-            
-            area = st.slider("Area (sqm)", min_value=50, max_value=800, value=200, step=10)
-            bedrooms = st.slider("Bedrooms", min_value=1, max_value=8, value=3, step=1)
-            bathrooms = st.slider("Bathrooms", min_value=1, max_value=8, value=2, step=1)
-            
-            locations = ["Abha City Center", "Al Sad", "Al Numas", "Al Aziziyah", 
-                         "Al Marooj", "Al Mansak", "Al Qabel", "Al Warood"]
-            location = st.selectbox("Location", options=locations)
-            
-            property_types = ["Apartment", "Villa", "Duplex", "Townhouse", "Studio"]
-            property_type = st.selectbox("Property Type", options=property_types)
-            
-            year_built = st.selectbox("Year Built", 
-                                     options=list(range(2030, 1990, -1)), 
-                                     index=10)
-        
-        with col2:
-            input_data = {
-                'area': area,
-                'bedrooms': bedrooms,
-                'bathrooms': bathrooms,
-                'location': location,
-                'propertyType': property_type,
-                'yearBuilt': year_built
-            }
-            
-            st.subheader("Get Prediction")
-            if st.button("Predict Price"):
-                with st.spinner('Calculating property value...'):
-                    result = predict_price(model, features, input_data)
-                    
-                    st.success(f"Estimated Property Value: {result['predictedPrice']:,} SAR")
-                    st.info(f"Confidence: {result['confidence']}%")
-                    
-                    st.subheader("Comparable Properties")
-                    similar_df = pd.DataFrame(result['similarProperties'])
-                    st.dataframe(similar_df, hide_index=True)
+    # Property input form
+    st.header("Predict Property Price")
     
-    with tab2:
-        st.header("API Information")
-        st.markdown("""
-        ### REST API Endpoints
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Property Details")
         
-        This app provides a REST API that can be used to get predictions programmatically:
+        area = st.slider("Area (sqm)", min_value=50, max_value=800, value=200, step=10)
+        bedrooms = st.slider("Bedrooms", min_value=1, max_value=8, value=3, step=1)
+        bathrooms = st.slider("Bathrooms", min_value=1, max_value=8, value=2, step=1)
         
-        #### Predict Endpoint
+        locations = ["Abha City Center", "Al Sad", "Al Numas", "Al Aziziyah", 
+                     "Al Marooj", "Al Mansak", "Al Qabel", "Al Warood"]
+        location = st.selectbox("Location", options=locations)
         
-        ```
-        POST /predict
-        ```
+        property_types = ["Apartment", "Villa", "Duplex", "Townhouse", "Studio"]
+        property_type = st.selectbox("Property Type", options=property_types)
         
-        **Request Body:**
-        ```json
-        {
-            "area": 200,
-            "bedrooms": 3,
-            "bathrooms": 2,
-            "location": "Abha City Center",
-            "propertyType": "Apartment",
-            "yearBuilt": 2010
+        year_built = st.selectbox("Year Built", 
+                                 options=list(range(2030, 1990, -1)), 
+                                 index=10)
+    
+    with col2:
+        input_data = {
+            'area': area,
+            'bedrooms': bedrooms,
+            'bathrooms': bathrooms,
+            'location': location,
+            'propertyType': property_type,
+            'yearBuilt': year_built
         }
-        ```
         
-        The API server runs on port 5000.
-        """)
-        
-        # API status
-        st.subheader("API Status")
-        if st.button("Start API Server"):
-            api_thread = threading.Thread(target=run_api, daemon=True)
-            api_thread.start()
-            st.success("API server started on http://localhost:5000")
+        st.subheader("Get Prediction")
+        if st.button("Predict Price"):
+            with st.spinner('Calculating property value...'):
+                result = predict_price(model, features, input_data)
+                
+                st.success(f"Estimated Property Value: {result['predictedPrice']:,} SAR")
+                st.info(f"Confidence: {result['confidence']}%")
+                
+                st.subheader("Comparable Properties")
+                similar_df = pd.DataFrame(result['similarProperties'])
+                st.dataframe(similar_df, hide_index=True)
+                
+                # Generate a simple bar chart comparing prices
+                fig, ax = plt.subplots(figsize=(10, 5))
+                properties = ['Your Property'] + [f'Similar {i+1}' for i in range(len(result['similarProperties']))]
+                prices = [result['predictedPrice']] + [prop['price'] for prop in result['similarProperties']]
+                
+                sns.barplot(x=properties, y=prices)
+                plt.ylabel('Price (SAR)')
+                plt.title('Your Property vs Similar Properties')
+                st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
