@@ -19,7 +19,7 @@ const Header = () => {
           <a href="https://github.com" target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-estate-primary">
               <GitHubIcon className="h-5 w-5 mr-2" />
-              <span>GitHub</span>
+              <span>View Python ML Model</span>
             </Button>
           </a>
         </div>

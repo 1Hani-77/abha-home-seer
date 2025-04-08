@@ -38,9 +38,11 @@ const PredictionResult: React.FC<PredictionResultProps> = ({
     name: 'Your Property',
     price: predictedPrice,
     area: similarProperties[0]?.area || 200,
-    fill: '#2c7a7b'
   });
 
+  // Custom styles for the chart
+  const yourPropertyIndex = chartData.length - 1;
+  
   const formatCurrency = (value: number) => {
     return `${value.toLocaleString()} SAR`;
   };
